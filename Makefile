@@ -11,7 +11,8 @@ KUBECTL=kubectl --kubeconfig=$(CIVO_KUBECONFIG)
 build: app.yaml
 
 app.yaml:
-	@curl https://myapp.lan/release.yaml > app.yaml
+	# Whatever commands are needed to build the app.yaml.  Kustomize example below
+	@curl kustomize build github.com/ssmiller25/r15cookieblog//?ref=main > app.yaml
 
 	# Test final app.yaml for validity
 	@echo "Testing validity of app.yaml"
@@ -23,16 +24,28 @@ clean:
 	@rm app.yaml
 
 .PHONY: test
-test:
-	@echo "Creating $(CIVO_TEST_CLUSTER_NAME)"
-	@$(CIVO_CMD) k3s create $(CIVO_TEST_CLUSTER_NAME) -n 3 --size g2.small --wait
-	@$(CIVO_CMD) k3s config $(CIVO_TEST_CLUSTER_NAME) > $(CIVO_KUBECONFIG)
+test: $(CIVO_KUBECONFIG) test-noclean cluster-clean
+
+.PHONY: test-keep
+test-keep: $(CIVO_KUBECONFIG) test-noclean
+
+.PHONY: test-noclean
+test-noclean:
 	@echo "Applying manifest and test run"
 	@$(KUBECTL) apply -f app.yaml
-	@$(KUBECTL) create -f test-manifests/testjob.yaml 
+	@$(KUBECTL) create -f test-manifests/testjob.yaml  
 	@sleep 10
 	@echo "Checking status of test run"
 	@$(KUBECTL) get job testjob -ojson | jq -r .status.conditions[0].type | grep -q Completed
-	@echo "Success!  Tearing down test cluster"
-	@$(CIVO_CMD) k3s remove -y $(CIVO_TEST_CLUSTER_NAME)
-	@rm $(CIVO_KUBECONFIG)
+	@echo "Success!"
+
+.PHONY: cluster-clean
+cluster-clean:
+	@echo "Tearing down test cluster!"
+	@$(CIVO_CMD) k3s remove -y $(CIVO_TEST_CLUSTER_NAME) || true
+	@rm $(CIVO_KUBECONFIG) 
+
+$(CIVO_KUBECONFIG):
+	@echo "Creating $(CIVO_TEST_CLUSTER_NAME)"
+	@$(CIVO_CMD) k3s create $(CIVO_TEST_CLUSTER_NAME) -n 3 --size g2.small --wait
+	@$(CIVO_CMD) k3s config $(CIVO_TEST_CLUSTER_NAME) > $(CIVO_KUBECONFIG)

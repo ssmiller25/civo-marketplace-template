@@ -11,10 +11,11 @@ spec:
       containers:
       - image: busybox
         name: myjob
+        # Querying service directly
         command:
           - /bin/sh
           - "-c" 
-          - "true"
+          - "curl http://r15cookieblog/"
         resources: {}
       restartPolicy: Never
 status: {}
