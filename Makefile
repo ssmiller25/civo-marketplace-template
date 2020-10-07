@@ -7,6 +7,7 @@ CIVO_TEST_CLUSTER_NAME=app-test
 CIVO_KUBECONFIG=kubeconfig.$(CIVO_TEST_CLUSTER_NAME)
 KUBECTL=kubectl --kubeconfig=$(CIVO_KUBECONFIG)
 
+.PHONY: build
 build: app.yaml
 
 app.yaml:
