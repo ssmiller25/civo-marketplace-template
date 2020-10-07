@@ -11,8 +11,8 @@ KUBECTL=kubectl --kubeconfig=$(CIVO_KUBECONFIG)
 build: app.yaml
 
 app.yaml:
-	# Whatever commands are needed to build the app.yaml.  Kustomize example below
-	@curl kustomize build github.com/ssmiller25/r15cookieblog//?ref=main > app.yaml
+# Whatever commands are needed to build the app.yaml.  Kustomize example below
+	@kustomize build https://gitlab.com/ssmiller25/r15cookieblog.git//?ref=main > app.yaml
 
 	# Test final app.yaml for validity
 	@echo "Testing validity of app.yaml"
@@ -36,7 +36,7 @@ test-noclean:
 	@$(KUBECTL) create -f test-manifests/testjob.yaml  
 	@sleep 10
 	@echo "Checking status of test run"
-	@$(KUBECTL) get job testjob -ojson | jq -r .status.conditions[0].type | grep -q Completed
+	@$(KUBECTL) get job testjob -n r15cookieblog -ojson | jq -r .status.conditions[0].type | grep -q Complete
 	@echo "Success!"
 
 .PHONY: cluster-clean

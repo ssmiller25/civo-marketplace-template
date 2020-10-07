@@ -2,7 +2,8 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   creationTimestamp: null
-  name: myjob
+  name: testjob
+  namespace: r15cookieblog
 spec:
   template:
     metadata:
@@ -10,12 +11,12 @@ spec:
     spec:
       containers:
       - image: busybox
-        name: myjob
+        name: testjob
         # Querying service directly
         command:
           - /bin/sh
           - "-c" 
-          - "curl http://r15cookieblog/"
+          - "wget http://r15cookieblog/"
         resources: {}
       restartPolicy: Never
 status: {}
