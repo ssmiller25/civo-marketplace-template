@@ -1,11 +1,10 @@
-VERSION?="v0.0.1"
-# For cli directly installed
-CIVO_CMD?="civo"
-# For Docker
-#CIVO_CMD?=docker run -it --rm -v $HOME/.civo.json:/.civo.json civo/cli:latest
+VERSION?="v0.1.0"
+CIVO_CMD?=civo
 CIVO_TEST_CLUSTER_NAME?=app-test
 CIVO_KUBECONFIG?=kubeconfig.$(CIVO_TEST_CLUSTER_NAME)
 KUBECTL?=kubectl --kubeconfig=$(CIVO_KUBECONFIG)
+DOCKER_REPO=quay.io/ssmiller25
+currentepoch := $(shell date +%s)
 
 .PHONY: build
 build: app.yaml
@@ -49,3 +48,8 @@ $(CIVO_KUBECONFIG):
 	@echo "Creating $(CIVO_TEST_CLUSTER_NAME)"
 	@$(CIVO_CMD) k3s create $(CIVO_TEST_CLUSTER_NAME) -n 3 --size g2.small --wait
 	@$(CIVO_CMD) k3s config $(CIVO_TEST_CLUSTER_NAME) > $(CIVO_KUBECONFIG)
+
+# For JUST building the docker runtime
+build-docker:
+	docker build . -t $(DOCKER_REPO)/civo-marketplace-builder:${currentepoch}; 
+	docker tag $(DOCKER_REPO)/civo-marketplace-builder:${currentepoch} $(DOCKER_REPO)/civo-marketplace-builder:latest
