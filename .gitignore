@@ -1,1 +1,3 @@
 kubeconfig*
+# Just to avoid my local app.yaml from going through.  This line SHOULD not be copied into yoru copy
+app.yaml
